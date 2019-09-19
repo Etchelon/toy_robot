@@ -1,9 +1,12 @@
-using System;
-
 namespace ToyRobot
 {
 	public static class StringExtensions
 	{
+		/// <summary>
+		/// Capitalizes the first letter of a string, and transforms the rest to lower case
+		/// </summary>
+		/// <param name="str">The string to transform</param>
+		/// <returns>The input string but in Title Case</returns>
 		public static string ToTitleCase(this string str)
 		{
 			if ((str?.Length ?? 0) == 0)

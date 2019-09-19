@@ -9,6 +9,7 @@ namespace ToyRobot
 	{
 		static async Task Main(string[] args)
 		{
+			// Try to parse program options
 			bool autoReport = args.Contains("--autoReport");
 			string logLevel = args.FirstOrDefault(arg => arg.StartsWith("--log"))?.Substring("--log".Length) ?? "None";
 
@@ -22,6 +23,7 @@ namespace ToyRobot
 
 			Console.WriteLine("Toy Robot starting up...\n");
 
+			// Ask the user how to retrieve the commands
 			string mode = null;
 			do
 			{
@@ -30,14 +32,15 @@ namespace ToyRobot
 			} while (!CommandsRetriever.AllowedModes.Contains(mode.ToLower()));
 
 			var commandsRetriever = new CommandsRetriever(mode);
+			// Retrieve the commands
 			var commands = await commandsRetriever.GetCommands();
 
-			Console.WriteLine();
-			Console.WriteLine("The commands are:");
-			PrintLines(commands);
-
+			// Start your engines...
 			var robot = new Robot(commands, autoReport);
+			// Go!
 			var results = robot.Execute();
+
+			// Log if the user asked to
 			if (logLevel != "None")
 			{
 				var onlyFailed = logLevel == "Failed";

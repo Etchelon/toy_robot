@@ -6,14 +6,35 @@ using System.Text.RegularExpressions;
 
 namespace ToyRobot
 {
+	/// <summary>
+	/// The Robot.
+	/// </summary>
 	internal class Robot
 	{
+		/// <summary>
+		/// Describes the internal state of the Robot.
+		/// </summary>
 		private class RobotState
 		{
+			/// <summary>
+			/// Whether is has been legally placed on the board
+			/// </summary>
 			public bool Placed { get; set; } = false;
+			/// <summary>
+			/// Current horizontal position
+			/// </summary>
 			public int CurrentX { get; set; } = 0;
+			/// <summary>
+			/// Current vertical position
+			/// </summary>
 			public int CurrentY { get; set; } = 0;
+			/// <summary>
+			/// Current direction the Robot is facing towards
+			/// </summary>
 			public MovementDirection CurrentDirection { get; set; } = MovementDirection.North;
+			/// <summary>
+			/// Current movement velocity (1 cell/move is the default)
+			/// </summary>
 			public int Velocity { get; set; } = 1;
 		}
 
@@ -24,7 +45,10 @@ namespace ToyRobot
 		private const int BoardHeight = 5;
 		private readonly RobotState state = new RobotState();
 
-		public Robot()
+		/// <summary>
+		/// Initializes the Regex used to parse commands.
+		/// </summary>
+		private Robot()
 		{
 			this.Regexes.Add(InstructionType.Place, new Regex(@"PLACE\s+(\d)\s*,\s*(\d)\s*,(NORTH|EAST|SOUTH|WEST)", RegexOptions.ECMAScript | RegexOptions.IgnoreCase));
 			this.Regexes.Add(InstructionType.Move, new Regex(@"MOVE", RegexOptions.ECMAScript | RegexOptions.IgnoreCase));
@@ -32,19 +56,30 @@ namespace ToyRobot
 			this.Regexes.Add(InstructionType.Report, new Regex(@"REPORT", RegexOptions.ECMAScript | RegexOptions.IgnoreCase));
 		}
 
+		/// <summary>
+		/// Constructs a Robot.
+		/// </summary>
+		/// <param name="commands">The commands to be executed</param>
+		/// <param name="autoReport">Whether to automatically report the status after each command, in addition to normal Report commands</param>
 		public Robot(IEnumerable<string> commands, bool autoReport = false) : this()
 		{
 			this._autoReport = autoReport;
 			this._commands = commands.Select(c => c.Trim()).ToArray();
 		}
 
-		public CommandExecutionResult[] Execute()
+		/// <summary>
+		/// Executes the commands that have been given to the Robot.
+		/// </summary>
+		/// <returns></returns>
+		public InstructionExecutionResult[] Execute()
 		{
 			var instructions = this._commands.Select(cmd => this.ParseCommand(cmd.Trim()));
 			var ret = instructions
 				.Select(this.Execute)
-				.Select(o => new CommandExecutionResult { Executed = o.executed, LogMessage = o.log })
+				.Select(o => new InstructionExecutionResult { Executed = o.executed, LogMessage = o.log })
 				.ToArray();
+
+			// Perform a final Report if the user hasn't explicitly issued one himself
 			if (!(instructions.LastOrDefault() is ReportInstruction))
 			{
 				this.Execute(ReportInstruction.Create());
@@ -52,8 +87,14 @@ namespace ToyRobot
 			return ret;
 		}
 
+		/// <summary>
+		/// Parses a string command into an Instruction.
+		/// </summary>
+		/// <param name="command">The string command to parse</param>
+		/// <returns>An concrete Instruction</returns>
 		private Instruction ParseCommand(string command)
 		{
+			// Check which regex matches the command, and therefore derive the command's type
 			var matchingRegex = this.Regexes
 				.DefaultIfEmpty(KeyValuePair.Create(InstructionType.Unknown, new Regex("")))
 				.FirstOrDefault(kvp => kvp.Value.IsMatch(command));
@@ -88,6 +129,11 @@ namespace ToyRobot
 			}
 		}
 
+		/// <summary>
+		/// Executes a single instruction.
+		/// </summary>
+		/// <param name="instruction">The instruction to execute</param>
+		/// <returns>A pair of (bool, string) that report the execution of the instruction</returns>
 		private (bool executed, string log) Execute(Instruction instruction)
 		{
 			var executed = false;
@@ -129,7 +175,7 @@ namespace ToyRobot
 				case ReportInstruction report:
 					if (!this.state.Placed)
 					{
-						sb.AppendLine("Placement has not occurred yet. Rotate instruction cannot be executed.");
+						sb.AppendLine("Placement has not occurred yet. Report instruction cannot be executed.");
 						break;
 					}
 					this.Report();
@@ -137,6 +183,8 @@ namespace ToyRobot
 					sb.AppendLine($"Robot status successfully reported.");
 					break;
 			}
+
+			// Report the status after a successful non-report instruction, if autoReport is active
 			if (this._autoReport && executed && instruction.Type != InstructionType.Report)
 			{
 				this.Report(true);
@@ -145,6 +193,13 @@ namespace ToyRobot
 			return (executed, sb.ToString());
 		}
 
+		/// <summary>
+		/// Tries to place the Robot at the specified coordinates.
+		/// </summary>
+		/// <param name="x">The X coordinate</param>
+		/// <param name="y">The Y coordinate</param>
+		/// <param name="direction">The initial direction of movement</param>
+		/// <returns>True if the placement is legal, false otherwise</returns>
 		private bool TryPlacement(int x, int y, MovementDirection direction)
 		{
 			var canPlace = this.IsPositionValid(x, y);
@@ -158,6 +213,10 @@ namespace ToyRobot
 			return canPlace;
 		}
 
+		/// <summary>
+		/// Tries to move towards the current direction of movement
+		/// </summary>
+		/// <returns>True if the movement is possible, false otherwise</returns>
 		private bool TryMovement()
 		{
 			var (newX, newY) = this.CalculateNextPosition();
@@ -170,6 +229,10 @@ namespace ToyRobot
 			return canMove;
 		}
 
+		/// <summary>
+		/// Rotates the Robot 90 degrees in the specified direction. This command is always successful.
+		/// </summary>
+		/// <param name="direction">Clockwise or counter-clockwise</param>
 		private void Rotate(RotationDirection direction)
 		{
 			const int nPossibleDirections = 4;
@@ -182,6 +245,10 @@ namespace ToyRobot
 			this.state.CurrentDirection = (MovementDirection)newDir;
 		}
 
+		/// <summary>
+		/// Reports the current position of the Robot on the board.
+		/// </summary>
+		/// <param name="isAutoReport">Whether to add an extra line indicating that the report is automatic</param>
 		private void Report(bool isAutoReport = false)
 		{
 			if (isAutoReport)
@@ -211,11 +278,21 @@ namespace ToyRobot
 			Console.WriteLine(lines.ToString());
 		}
 
+		/// <summary>
+		/// Check whether the Robot is currently in the specified cell.
+		/// </summary>
+		/// <param name="x">The cell's X coordinate</param>
+		/// <param name="y">The cell's Y coordinate</param>
+		/// <returns>True if the Robot is in the cell, false otherwise</returns>
 		private bool IsInCell(int x, int y)
 		{
 			return this.state.CurrentX == x && this.state.CurrentY == y;
 		}
 
+		/// <summary>
+		/// Calculates the next position of the Robot if it were to move in the current direction.
+		/// </summary>
+		/// <returns>The next (x, y) position</returns>
 		private (int x, int y) CalculateNextPosition()
 		{
 			var newX = this.state.CurrentX + (this.state.CurrentDirection == MovementDirection.East
@@ -229,6 +306,12 @@ namespace ToyRobot
 			return (newX, newY);
 		}
 
+		/// <summary>
+		/// Checks whether a specified position is legal (ie: inside the board) or not.
+		/// </summary>
+		/// <param name="x">The X coordinate</param>
+		/// <param name="y">The Y coordinate</param>
+		/// <returns>True if the position is legal, false otherwise</returns>
 		private bool IsPositionValid(int x, int y)
 		{
 			var isXValid = 0 <= x && x < Robot.BoardWidth;

@@ -5,12 +5,27 @@ using System.Threading.Tasks;
 
 namespace ToyRobot
 {
+	/// <summary>
+	/// The entity responsible for retrieving the list of commands to issue to the Robot
+	/// </summary>
 	internal class CommandsRetriever
 	{
+		/// <summary>
+		/// How to retrieve the commands.
+		/// </summary>
 		enum RetrievalMode
 		{
+			/// <summary>
+			/// Use hard coded commands
+			/// </summary>
 			Debug = 0,
+			/// <summary>
+			/// Get from file
+			/// </summary>
 			File,
+			/// <summary>
+			/// Get from standard input
+			/// </summary>
 			Console
 		}
 
@@ -25,6 +40,10 @@ REPORT";
 		private const string FileName = "commands.txt";
 		private readonly RetrievalMode _mode;
 
+		/// <summary>
+		/// Constructs the Retriever by specifying how to get the commands.
+		/// </summary>
+		/// <param name="mode">The retrieval mode: one of "f", "c", "dbg"</param>
 		public CommandsRetriever(string mode)
 		{
 			this._mode = (mode == "dbg"
@@ -36,6 +55,10 @@ REPORT";
 				: (RetrievalMode?)null) ?? throw new ArgumentOutOfRangeException($"Mode {mode} is not supported");
 		}
 
+		/// <summary>
+		/// Actually retrieve the commands.
+		/// </summary>
+		/// <returns>The list of string commands issued to the Robot</returns>
 		public async Task<string[]> GetCommands()
 		{
 			switch (this._mode)
