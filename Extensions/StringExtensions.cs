@@ -1,4 +1,4 @@
-namespace ToyRobot
+namespace ToyRobot.Extensions
 {
 	public static class StringExtensions
 	{

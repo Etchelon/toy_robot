@@ -1,4 +1,4 @@
-namespace ToyRobot
+namespace ToyRobot.Model
 {
 	/// <summary>
 	/// The direction of movement on the board.

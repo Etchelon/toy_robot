@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace ToyRobot
+namespace ToyRobot.Logic
 {
 	/// <summary>
 	/// The entity responsible for retrieving the list of commands to issue to the Robot

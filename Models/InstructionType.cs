@@ -1,4 +1,4 @@
-namespace ToyRobot
+namespace ToyRobot.Model
 {
 	/// <summary>
 	/// The type of an instruction

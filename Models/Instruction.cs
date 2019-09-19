@@ -1,4 +1,4 @@
-namespace ToyRobot
+namespace ToyRobot.Model
 {
 	/// <summary>
 	/// Abstract class that represents an instruction to be executed by the Robot.

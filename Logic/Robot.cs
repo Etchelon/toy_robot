@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using ToyRobot.Extensions;
+using ToyRobot.Model;
 
-namespace ToyRobot
+namespace ToyRobot.Logic
 {
 	/// <summary>
 	/// The Robot.
@@ -256,13 +258,15 @@ namespace ToyRobot
 				Console.WriteLine("\nAutomatic report:");
 			}
 
-			const string cellTop = "---";
-			var lineTop = string.Concat(Enumerable.Repeat(cellTop, Robot.BoardWidth)) + "-";
-			var lineBottom = string.Concat(Enumerable.Repeat(cellTop, Robot.BoardWidth)) + "-";
+			const string cellTopSegment = "---";
+			var lineTop = "  " + string.Concat(Enumerable.Repeat(cellTopSegment, Robot.BoardWidth)) + "-";
+			var lineBottom = "  " + string.Concat(Enumerable.Repeat(cellTopSegment, Robot.BoardWidth)) + "-";
+			var colCounters = "  " + string.Concat(Enumerable.Range(0, 5).Select(n => $"  {n}")) + " ";
 			var lines = new StringBuilder();
+			lines.AppendLine(colCounters);
 			for (var y = Robot.BoardHeight - 1; y >= 0; --y)
 			{
-				var cells = new StringBuilder();
+				var cells = new StringBuilder($"{y} ");
 				for (var x = 0; x < Robot.BoardWidth; ++x)
 				{
 					var directionStr = Enum.GetName(typeof(MovementDirection), this.state.CurrentDirection);

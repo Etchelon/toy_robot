@@ -1,4 +1,4 @@
-namespace ToyRobot
+namespace ToyRobot.Model
 {
 	/// <summary>
 	/// Describes the result of the execution of an instruction
