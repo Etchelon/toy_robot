@@ -1,97 +1,17 @@
 Toy Robot Simulator
 ===================
 
-Description
------------
+Running the app
+---------------
 
-- The application is a simulation of a toy robot moving on a square tabletop,
-  of dimensions 5 units x 5 units.
-- There are no other obstructions on the table surface.
-- The robot is free to roam around the surface of the table, but must be
-  prevented from falling to destruction. Any movement that would result in the
-  robot falling from the table must be prevented, however further valid
-  movement commands must still be allowed.
+The only requirement to run the app is just to have dotnet core installed.
+Run "dotnet run" in the same folder as the .csproj file.
+The C# language version is already set inside the project file at version 7.1 in order to enable support for the async Main function.
 
-Create an application that can read in commands of the following form:
+Commands can be provided either by file (it must be the "commands.txt" file, which is hard coded and contains the test data used to develop the app) or by issuing them via console. Since reading a file is a batch operation, I've coded the same behavior into the console approach, so you need to issue all commands first and then they'll be executed in a batch.
 
-    PLACE X,Y,F
-    MOVE
-    LEFT
-    RIGHT
-    REPORT
+There are 2 options that can be provided when launching the app:
 
-- PLACE will put the toy robot on the table in position X,Y and facing NORTH,
-  SOUTH, EAST or WEST.
-- The origin (0,0) can be considered to be the SOUTH WEST most corner.
-- The first valid command to the robot is a PLACE command, after that, any
-  sequence of commands may be issued, in any order, including another PLACE
-  command. The application should discard all commands in the sequence until
-  a valid PLACE command has been executed.
-- MOVE will move the toy robot one unit forward in the direction it is
-  currently facing.
-- LEFT and RIGHT will rotate the robot 90 degrees in the specified direction
-  without changing the position of the robot.
-- REPORT will announce the X,Y and F of the robot. This can be in any form,
-  but standard output is sufficient.
+--autoReport which will cause the Robot to report its status after each successful and non-report command. I've introduced this option to facilitate the development and I think it's more pleasant to see the Robot move one step at a time.
 
-- A robot that is not on the table can choose the ignore the MOVE, LEFT, RIGHT
-  and REPORT commands.
-- Input can be from a file, or from standard input, as the developer chooses.
-- Provide test data to exercise the application.
-
-Constraints
------------
-
-- The toy robot must not fall off the table during movement. This also
-  includes the initial placement of the toy robot.
-- Any move that would cause the robot to fall must be ignored.
-
-Example Input and Output
-------------------------
-
-### Example a
-
-    PLACE 0,0,NORTH
-    MOVE
-    REPORT
-
-Expected output:
-
-    0,1,NORTH
-
-### Example b
-
-    PLACE 0,0,NORTH
-    LEFT
-    REPORT
-
-Expected output:
-
-    0,0,WEST
-
-### Example c
-
-    PLACE 1,2,EAST
-    MOVE
-    MOVE
-    LEFT
-    MOVE
-    REPORT
-
-Expected output
-
-    3,3,NORTH
-
-Deliverables
-------------
-
-Please provide your source code, and any test code/data you using in
-developing your solution.
-
-Please engineer your solution to a standard you consider suitable for
-production. It is not required to provide any graphical output showing the
-movement of the toy robot.
-
-## Acknowledgements
-
-The Toy Robot was created by [Jon Eaves](https://twitter.com/joneaves)
+--log*Level* where *Level* is one of "None", "Failed" or "All", which will enable logging a report for each failed command, for all of them or for none. This is an extra kind of log in addition to the output from the Report instruction.
